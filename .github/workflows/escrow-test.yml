@@ -26,7 +26,7 @@ jobs:
       - run: node -e "require('once'); require('lodash'); console.log('npm ok')"
       - name: Escrow supply chain report
         if: always()
-        run: escrow ci-report >> $GITHUB_STEP_SUMMARY
+        run: escrow ci-report 2>&1 | tee -a $GITHUB_STEP_SUMMARY
 
   pypi:
     name: pypi
@@ -45,7 +45,7 @@ jobs:
       - run: python3 -c "import requests, click; print('pypi ok')"
       - name: Escrow supply chain report
         if: always()
-        run: escrow ci-report >> $GITHUB_STEP_SUMMARY
+        run: escrow ci-report 2>&1 | tee -a $GITHUB_STEP_SUMMARY
 
   go:
     name: go
@@ -63,7 +63,7 @@ jobs:
       - run: go mod download && go build ./...
       - name: Escrow supply chain report
         if: always()
-        run: escrow ci-report >> $GITHUB_STEP_SUMMARY
+        run: escrow ci-report 2>&1 | tee -a $GITHUB_STEP_SUMMARY
 
   cargo:
     name: cargo
@@ -79,7 +79,7 @@ jobs:
       - run: cargo fetch && cargo build
       - name: Escrow supply chain report
         if: always()
-        run: escrow ci-report >> $GITHUB_STEP_SUMMARY
+        run: escrow ci-report 2>&1 | tee -a $GITHUB_STEP_SUMMARY
 
   nuget:
     name: nuget
@@ -97,7 +97,7 @@ jobs:
       - run: dotnet restore && dotnet build --no-restore
       - name: Escrow supply chain report
         if: always()
-        run: escrow ci-report >> $GITHUB_STEP_SUMMARY
+        run: escrow ci-report 2>&1 | tee -a $GITHUB_STEP_SUMMARY
 
   maven:
     name: maven
@@ -116,7 +116,7 @@ jobs:
       - run: mvn dependency:resolve -B -s ~/.m2/settings.xml
       - name: Escrow supply chain report
         if: always()
-        run: escrow ci-report >> $GITHUB_STEP_SUMMARY
+        run: escrow ci-report 2>&1 | tee -a $GITHUB_STEP_SUMMARY
 
   age-gate:
     name: age-gate blocks fresh packages
@@ -148,4 +148,4 @@ jobs:
           echo "pip age gate ok"
       - name: Escrow supply chain report
         if: always()
-        run: escrow ci-report >> $GITHUB_STEP_SUMMARY
+        run: escrow ci-report 2>&1 | tee -a $GITHUB_STEP_SUMMARY
