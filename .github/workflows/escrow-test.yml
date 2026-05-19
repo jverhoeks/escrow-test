@@ -24,9 +24,6 @@ jobs:
           node-version: '20'
       - run: npm install --ignore-scripts
       - run: node -e "require('once'); require('lodash'); console.log('npm ok')"
-      - name: Escrow supply chain report
-        if: always()
-        run: escrow ci-report 2>&1 | tee -a $GITHUB_STEP_SUMMARY
 
   pypi:
     name: pypi
@@ -43,9 +40,6 @@ jobs:
           python-version: '3.12'
       - run: pip install -r requirements.txt --quiet
       - run: python3 -c "import requests, click; print('pypi ok')"
-      - name: Escrow supply chain report
-        if: always()
-        run: escrow ci-report 2>&1 | tee -a $GITHUB_STEP_SUMMARY
 
   go:
     name: go
@@ -61,9 +55,6 @@ jobs:
         with:
           go-version: '1.22'
       - run: go mod download && go build ./...
-      - name: Escrow supply chain report
-        if: always()
-        run: escrow ci-report 2>&1 | tee -a $GITHUB_STEP_SUMMARY
 
   cargo:
     name: cargo
@@ -77,9 +68,6 @@ jobs:
           osv-severity: 'HIGH'
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo fetch && cargo build
-      - name: Escrow supply chain report
-        if: always()
-        run: escrow ci-report 2>&1 | tee -a $GITHUB_STEP_SUMMARY
 
   nuget:
     name: nuget
@@ -95,9 +83,6 @@ jobs:
         with:
           dotnet-version: '8.0'
       - run: dotnet restore && dotnet build --no-restore
-      - name: Escrow supply chain report
-        if: always()
-        run: escrow ci-report 2>&1 | tee -a $GITHUB_STEP_SUMMARY
 
   maven:
     name: maven
@@ -114,9 +99,6 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
       - run: mvn dependency:resolve -B -U -s ~/.m2/settings.xml
-      - name: Escrow supply chain report
-        if: always()
-        run: escrow ci-report 2>&1 | tee -a $GITHUB_STEP_SUMMARY
 
   age-gate:
     name: age-gate blocks fresh packages
@@ -146,6 +128,3 @@ jobs:
             echo "age gate failed to block pip" && exit 1
           fi
           echo "pip age gate ok"
-      - name: Escrow supply chain report
-        if: always()
-        run: escrow ci-report 2>&1 | tee -a $GITHUB_STEP_SUMMARY
