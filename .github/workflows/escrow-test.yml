@@ -1,0 +1,130 @@
+name: Escrow supply-chain integration tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+jobs:
+  npm:
+    name: npm
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jverhoeks/escrow@v1
+        with:
+          ecosystems: 'npm'
+          min-days: '1'
+          osv-severity: 'HIGH'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install --ignore-scripts
+      - run: node -e "require('once'); require('lodash'); console.log('npm ok')"
+
+  pypi:
+    name: pypi
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jverhoeks/escrow@v1
+        with:
+          ecosystems: 'pypi'
+          min-days: '1'
+          osv-severity: 'HIGH'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt --quiet
+      - run: python3 -c "import requests, click; print('pypi ok')"
+
+  go:
+    name: go
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jverhoeks/escrow@v1
+        with:
+          ecosystems: 'go'
+          min-days: '1'
+          osv-severity: 'HIGH'
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - run: go mod download && go build ./...
+
+  cargo:
+    name: cargo
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jverhoeks/escrow@v1
+        with:
+          ecosystems: 'cargo'
+          min-days: '1'
+          osv-severity: 'HIGH'
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo fetch && cargo build
+
+  nuget:
+    name: nuget
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jverhoeks/escrow@v1
+        with:
+          ecosystems: 'nuget'
+          min-days: '1'
+          osv-severity: 'HIGH'
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0'
+      - run: dotnet restore && dotnet build --no-restore
+
+  maven:
+    name: maven
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jverhoeks/escrow@v1
+        with:
+          ecosystems: 'maven'
+          min-days: '1'
+          osv-severity: 'HIGH'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - run: mvn dependency:resolve -B -s ~/.m2/settings.xml
+
+  age-gate:
+    name: age-gate blocks fresh packages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jverhoeks/escrow@v1
+        with:
+          ecosystems: 'npm,pypi'
+          min-days: '99999'
+          osv-severity: 'off'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: npm install must be blocked
+        run: |
+          if npm install --ignore-scripts 2>/dev/null; then
+            echo "age gate failed to block npm" && exit 1
+          fi
+          echo "npm age gate ok"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: pip install must be blocked
+        run: |
+          if pip install requests --quiet 2>/dev/null; then
+            echo "age gate failed to block pip" && exit 1
+          fi
+          echo "pip age gate ok"

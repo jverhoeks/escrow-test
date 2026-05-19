@@ -1,0 +1,9 @@
+{
+  "name": "escrow-test",
+  "version": "1.0.0",
+  "description": "escrow proxy integration test — npm",
+  "dependencies": {
+    "once": "^1.4.0",
+    "lodash": "^4.17.21"
+  }
+}
